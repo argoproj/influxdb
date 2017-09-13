@@ -3,12 +3,14 @@ type: workflow
 version: 1
 name: InfluxDB CI
 description: InfluxDB continuous build and test
+
 inputs:
   parameters:
     COMMIT:
       default: "%%session.commit%%"
     REPO:
       default: "%%session.repo%%"
+
 steps:
 - CHECKOUT:
     template: argo-checkout
@@ -26,13 +28,17 @@ type: container
 version: 1
 name: influxdb-build
 description: Builds InfluxDB
+
 inputs:
   artifacts:
     CODE:
       path: /go/src/github.com/influxdata/influxdb
-resources:
-  mem_mib: 1024
-  cpu_cores: 0.2
+
+outputs:
+  artifacts:
+    INFLUXD:
+      path: /go/bin/influxd
+
 image: golang:1.8.3
 command: ["sh", "-c"]
 args: ["
@@ -41,7 +47,7 @@ args: ["
   gdm restore &&
   go install -v ./...
 "]
-outputs:
-  artifacts:
-    INFLUXD:
-      path: /go/bin/influxd
+
+resources:
+  mem_mib: 1024
+  cpu_cores: 0.2
