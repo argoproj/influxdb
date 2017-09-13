@@ -1,0 +1,61 @@
+---
+type: workflow
+version: 1
+name: influxdb-test-e2e
+description: InfluxDB end-to-end test
+inputs:
+  artifacts:
+    INFLUXD:
+fixtures:
+- INFLUXDB:
+    template: influxdb-server
+steps:
+- INITDB:
+    template: influxdb-client
+    arguments:
+      parameters.CMD: curl -XPOST 'http://%%fixtures.INFLUXDB.ip%%:8086/query' --data-urlencode "q=CREATE DATABASE mydb"
+- PRODUCER1:
+    template: influxdb-client
+    arguments:
+      parameters.CMD: for i in $(seq 1 20); do curl -XPOST 'http://%%fixtures.INFLUXDB.ip%%:8086/write?db=mydb' -d "cpu,host=server01,region=uswest load=$i" ; sleep .5 ; done
+  PRODUCER2:
+    template: influxdb-client
+    arguments:
+      parameters.CMD: for i in $(seq 1 20); do curl -XPOST 'http://%%fixtures.INFLUXDB.ip%%:8086/write?db=mydb' -d "cpu,host=server02,region=uswest load=$((RANDOM % 100))" ; sleep .5 ; done
+  PRODUCER3:
+    template: influxdb-client
+    arguments:
+      parameters.CMD: curl -XPOST 'http://%%fixtures.INFLUXDB.ip%%:8086/write?db=mydb' -d 'cpu,host=server03,region=useast load=15.4'
+- CONSUMER:
+    template: influxdb-client
+    arguments:
+      parameters.CMD: curl --silent -G http://%%fixtures.INFLUXDB.ip%%:8086/query?pretty=true --data-urlencode "db=mydb" --data-urlencode "q=SELECT * FROM cpu"
+
+---
+type: container
+version: 1
+name: influxdb-server
+inputs:
+  artifacts:
+    INFLUXD:
+      path: /usr/local/bin
+image: debian:9.1
+command: ["sh", "-c"]
+args: ["influxd"]
+resources:
+  mem_mib: 512
+  cpu_cores: 0.25
+
+---
+type: container
+version: 1
+name: influxdb-client
+resources:
+  mem_mib: 32
+  cpu_cores: 0.05
+inputs:
+  parameters:
+    CMD:
+image: appropriate/curl:latest
+command: ["sh", "-c"]
+args: ["%%inputs.parameters.CMD%%"]
