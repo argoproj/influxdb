@@ -18,7 +18,11 @@ steps:
     template: influxdb-build
     arguments:
       artifacts.CODE: "%%steps.CHECKOUT.outputs.artifacts.CODE%%"
-- INFLUXDB-TEST-E2E:
+- INFLUXDB-TEST-UNIT:
+    template: influxdb-test-unit
+    arguments:
+      artifacts.CODE: "%%steps.CHECKOUT.outputs.artifacts.CODE%%"
+  INFLUXDB-TEST-E2E:
     template: influxdb-test-e2e
     arguments:
       artifacts.INFLUXD: "%%steps.INFLUXDB-BUILD.outputs.artifacts.INFLUXD%%"
