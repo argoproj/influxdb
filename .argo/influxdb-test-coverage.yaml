@@ -1,0 +1,51 @@
+---
+type: workflow
+version: 1
+name: influxdb-test-coverage
+description: Runs InfluxDB Coverage Reports on various packages
+inputs:
+  artifacts:
+    CODE:
+steps:
+- QUERY:
+    template: influxdb-test-coverage-base
+    arguments:
+      parameters.PACKAGE: query
+  TSM1:
+    template: influxdb-test-coverage-base
+    arguments:
+      parameters.PACKAGE: tsdb/engine/tsm1
+  INFLUXQL:
+    template: influxdb-test-coverage-base
+    arguments:
+      parameters.PACKAGE: influxql
+
+---
+type: container
+version: 1
+name: influxdb-test-coverage-base
+description: Executes a package's tests and generates a coverage report
+inputs:
+  parameters:
+    PACKAGE:
+  artifacts:
+    CODE:
+      path: /go/src/github.com/influxdata/influxdb
+resources:
+  mem_mib: 4096
+  cpu_cores: 0.2
+image: golang:1.8.3
+command: ["sh", "-c"]
+args: ["
+  go get github.com/sparrc/gdm &&
+  cd /go/src/github.com/influxdata/influxdb &&
+  gdm restore &&
+  go test -v -coverprofile /tmp/cov.out ./%%inputs.parameters.PACKAGE%% &&
+  go tool cover -html=/tmp/cov.out -o /tmp/index.html
+"]
+outputs:
+  artifacts:
+    COVREPORT:
+      path: /tmp/index.html
+      meta_data:
+      - browsable

@@ -8,7 +8,7 @@ inputs:
     CODE:
       path: /go/src/github.com/influxdata/influxdb
 resources:
-  mem_mib: 4096
+  mem_mib: 5120
   cpu_cores: 0.2
 image: golang:1.8.3
 command: ["sh", "-c"]
