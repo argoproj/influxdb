@@ -1,0 +1,27 @@
+---
+type: container
+version: 1
+name: influxdb-build
+description: Builds InfluxDB
+
+inputs:
+    artifacts:
+        CODE:
+            path: /go/src/github.com/influxdata/influxdb
+
+outputs:
+    artifacts:
+        INFLUXD:
+            path: /go/bin/influxd
+
+image: golang:1.8.3
+command: ["sh", "-c"]
+args: ["
+    go get github.com/sparrc/gdm &&
+    cd /go/src/github.com/influxdata/influxdb &&
+    gdm restore &&
+    go install -v ./...
+"]
+resources:
+    mem_mib: 1024
+    cpu_cores: 0.2
