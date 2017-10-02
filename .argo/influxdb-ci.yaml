@@ -10,14 +10,6 @@ inputs:
       default: "%%session.commit%%"
     REPO:
       default: "%%session.repo%%"
-    REQUIRED_APPROVALS:
-      default: " "
-    OPTIONAL_APPROVALS:
-      default: " "
-    NUMBER_OF_OPTIONAL_APPROVALS_NEEDED:
-      default: 0
-    TIMEOUT_IN_MINUTES:
-      default: 10
 
 
 
