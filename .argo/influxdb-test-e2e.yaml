@@ -42,11 +42,11 @@ name: influxdb-server
 inputs:
   artifacts:
     INFLUXD:
-      path: /usr/local/bin
+      path: /app
 
 image: debian:9.1
 command: ["sh", "-c"]
-args: ["influxd"]
+args: ["chmod +x /app/influxd && /app/influxd"]
 
 resources:
   mem_mib: 512
